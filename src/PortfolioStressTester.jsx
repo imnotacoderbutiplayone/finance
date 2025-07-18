@@ -129,7 +129,17 @@ const PortfolioStressTester = () => {
     calculateStressTest();
   }, [selectedScenario, portfolio, portfolioValue]);
 
-  return <div>Portfolio Stress Tester Component</div>; // Simplified for demo
+  return (
+  <div className="max-w-6xl mx-auto p-6 bg-white">
+    <div className="mb-8">
+      <h1 className="text-3xl font-bold text-gray-900 mb-2">Portfolio Stress Testing</h1>
+      <p className="text-gray-600">Analyze portfolio performance under various market stress scenarios</p>
+    </div>
+
+    {/* ...everything else from your original component... */}
+  </div>
+);
+
 };
 
 export default PortfolioStressTester;
