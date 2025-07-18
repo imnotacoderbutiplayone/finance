@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar
@@ -131,42 +132,63 @@ const PortfolioStressTester = () => {
     calculateStressTest();
   }, [selectedScenario, portfolio, portfolioValue]);
 
+  const handleAllocationChange = (index, newAllocation) => {
+    const newPortfolio = [...portfolio];
+    newPortfolio[index].allocation = parseFloat(newAllocation);
+    setPortfolio(newPortfolio);
+  };
+
+  const totalAllocation = portfolio.reduce((sum, asset) => sum + asset.allocation, 0);
+
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white">
-      <h1 className="text-2xl font-bold mb-4">Portfolio Stress Testing</h1>
-      <p className="mb-4 text-gray-700">Scenario: {stressScenarios[selectedScenario].name}</p>
+    <div className="max-w-5xl mx-auto p-6 bg-white">
+      <h1 className="text-3xl font-bold mb-4">Portfolio Stress Testing</h1>
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Portfolio Value:</label>
-          <input
-            type="number"
-            value={portfolioValue}
-            onChange={(e) => setPortfolioValue(parseFloat(e.target.value))}
-            className="w-full border border-gray-300 rounded p-1"
-          />
+          <label className="block mb-1 text-sm font-medium">Portfolio Value ($)</label>
+          <input type="number" value={portfolioValue} onChange={(e) => setPortfolioValue(parseFloat(e.target.value))}
+            className="w-full border border-gray-300 rounded p-2" />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Stress Scenario:</label>
-          <select
-            value={selectedScenario}
-            onChange={(e) => setSelectedScenario(e.target.value)}
-            className="w-full border border-gray-300 rounded p-1"
-          >
-            {Object.entries(stressScenarios).map(([key, val]) => (
-              <option key={key} value={key}>{val.name}</option>
+          <label className="block mb-1 text-sm font-medium">Scenario</label>
+          <select value={selectedScenario} onChange={(e) => setSelectedScenario(e.target.value)}
+            className="w-full border border-gray-300 rounded p-2">
+            {Object.entries(stressScenarios).map(([key, scenario]) => (
+              <option key={key} value={key}>{scenario.name}</option>
             ))}
           </select>
         </div>
       </div>
+
+      <div className="mb-6">
+        <h2 className="text-lg font-semibold mb-2">Asset Allocation</h2>
+        {portfolio.map((asset, index) => (
+          <div key={index} className="flex items-center mb-2">
+            <div className="w-1/2">{asset.asset}</div>
+            <input
+              type="number"
+              value={asset.allocation}
+              onChange={(e) => handleAllocationChange(index, e.target.value)}
+              className="w-20 border border-gray-300 rounded p-1 mx-2"
+            />
+            <span>%</span>
+          </div>
+        ))}
+        <p className={`mt-2 font-medium ${totalAllocation !== 100 ? 'text-red-600' : 'text-green-600'}`}>
+          Total Allocation: {totalAllocation.toFixed(1)}%
+        </p>
+      </div>
+
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={stressResults}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="asset" />
           <YAxis />
           <Tooltip />
-          <Bar dataKey="dollarChange" fill="#ef4444" />
+          <Bar dataKey="contributionToLoss" fill="#ef4444" />
         </BarChart>
       </ResponsiveContainer>
+
       <div className="mt-6">
         <h2 className="text-xl font-semibold mb-2">Summary</h2>
         <p>Total Loss: ${Math.abs(summaryResults.totalLoss).toLocaleString()} ({summaryResults.totalLossPercent.toFixed(2)}%)</p>
